@@ -13,43 +13,81 @@ router.post('/api/v1/employee', async (req, res) =>{
     }
 })
 
-// //Get employees
-// router.get('api/v1/employees', async (req, res) => {
-//     try {
-//         const emp = await Employee.find({});
-//         res.status(200).send(emp);
-//     } catch (e) {
-//         res.status(500).send(e);
-//     }
-// })
+//Get Employees
+router.get('/api/v1/employees', async (req, res) => {
+    try {
+        const emp = await Employee.find({});
+        res.send(emp);
+    } catch (e) {
+        res.status(500).send(e);
+    }
+})
+
+//Get Employees by fillter
+router.post('/api/v1/employees', async (req, res) => {
+    const filter = req.body.filter;
+    if(filter === 'all'){
+        try {
+            console.log(filter);
+            const emp = await Employee.find({});
+            res.send(emp);
+        } catch (error) {
+            res.status(500).send(e);
+        }    
+    } else if(filter === 'gender'){
+        try {
+            const value = req.body.value
+            console.log('Filter: ' + filter);
+            console.log('Value: ' + value);
+            const emp = await Employee.find({ gender: value });
+            res.send(emp);
+        } catch (error) {
+            res.status(500).send(e);
+        }    
+    } else if(filter === 'department'){
+        try {
+            const value = req.body.value
+            console.log('Filter: ' + filter);
+            console.log('Value: ' + value);
+            const emp = await Employee.find({ department: value });
+            res.send(emp);
+        } catch (error) {
+            res.status(500).send(e);
+        }    
+    }
+})
+
 
 // //Update Task
-// router.post('api/v1/edit-employee', async (req, res) => {
-//     const _id = req.body.id;
-//     const updates = Object.keys(req.body);
-//     try {
-//         const task = await Task.findById(req.body._id);
-//         console.log(req.body._id);
+router.post('/api/v1/edit-employee', async (req, res) => {
+    const id = req.body.empId;
+    console.log(id);
+    const updates = ['name', 'phone', 'age'];
+    console.log(updates)
+    try {
+        const emp = await Employee.findOne({empId: id});
+        console.log(emp);
 
-//         updates.forEach((update) => task[update] = req.body[update]);
-//         await task.save();
+        if(!emp){
+            return res.status(404).send();
+        }
 
-//         if(!task){
-//             return res.status(404).send();
-//         }
-//         res.send(task);
-//     } catch (e) {
-//         res.status(500).send(e);
-//     }
-// })
+        updates.forEach((update) => emp[update] = req.body[update]);
+        await emp.save();
+
+        res.send(emp);
+    } catch (e) {
+        res.status(500).send(e);
+    }
+})
 
 //Delete User
 router.post('/api/v1/remove-employee', async (req, res) => {
     const id = req.body.empId;
-    console.log(id)
+    console.log(id);
     try {
         const emp = await Employee.findOneAndDelete(id);
-        console.log(emp)
+        console.log(emp);
         if(!emp){
             return res.status(404).send();
         }
