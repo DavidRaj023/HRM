@@ -15,7 +15,8 @@ const createEmployee = async (req, res) =>{
 
 const getAllEmployees = async (req, res) => {
     try {
-        const emp = await Employee.find({});
+        const emp = await Employee.find({}, {_id:0, __v:0});// Select all from table without id and __V filed
+        emp.push({ results: emp.length });
         res.send(emp);
     } catch (e) {
         res.status(500).send(e);
@@ -26,11 +27,8 @@ const updateEmployee = async (req, res) => {
     const id = req.body.empId;
     console.log(id);
     const updates = ['name', 'phone', 'age'];
-    console.log(updates)
     try {
         const emp = await Employee.findOne({empId: id});
-        console.log(emp);
-
         if(!emp){
             return res.status(404).send();
         }
@@ -49,7 +47,6 @@ const deleteEmployee = async (req, res) => {
     console.log(id);
     try {
         const emp = await Employee.findOneAndDelete( {empId: id} );
-        console.log(emp);
         if(!emp){
             return res.status(404).send();
         }
@@ -65,8 +62,7 @@ const getByFilters = async (req, res) => {
         case 'all':
             try {
                 console.log('Filter: ' + filter);
-                const emp = await Employee.find({});
-                console.log(emp.length);
+                const emp = await Employee.find({}, {_id:0, __v:0});
                 res.send(emp);
             } catch (e) {
                 res.status(500).send(e);
@@ -76,9 +72,18 @@ const getByFilters = async (req, res) => {
         case 'gender':
             try {
                 const value = req.body.value;
-                console.log('Filter: ' + filter);
-                console.log('Value: ' + value);
-                const emp = await Employee.find({ gender: value });
+                if(!value){
+                    return res.status(400).send({
+                        Code: '400',
+                        Error: 'Please enter the filter values'
+                    });
+                }
+                const emp = await Employee.find({ gender: value }, {_id:0, __v:0});
+                if(!emp.length > 0){
+                    return res.status(400).send({
+                        Message: 'No data found'
+                    });
+                }
                 res.send(emp);
             } catch (e) {
                 res.status(500).send(e);
@@ -88,9 +93,18 @@ const getByFilters = async (req, res) => {
         case 'department':
             try {
                 const value = req.body.value;
-                console.log('Filter: ' + filter);
-                console.log('Value: ' + value);
-                const emp = await Employee.find({ department: value });
+                if(!value){
+                    return res.status(400).send({
+                        Code: '400',
+                        Error: 'Please enter the filter values'
+                    });
+                }
+                const emp = await Employee.find({ department: value }, {_id:0, __v:0});
+                if(!emp.length > 0){
+                    return res.status(400).send({
+                        Message: 'No data found'
+                    });
+                }
                 res.send(emp);
             } catch (e) {
                 res.status(500).send(e);
@@ -101,12 +115,24 @@ const getByFilters = async (req, res) => {
             try {
                 const option = req.body.option; 
                 const value = req.body.value;
-                console.log('Filter: ' + filter + ' Option: ' + option + ' Value: ' + value);
-                if(option === 'less_than'){
-                    const emp = await Employee.find({ age: { $lt: value } });
-                    return res.send(emp);
+                if(!option || !value){
+                    return res.status(400).send({
+                        Code: '400',
+                        Error: 'Please enter the filter values and options'
+                    });
                 }
-                const emp = await Employee.find({ age: { $gt: value } });
+                console.log('Filter: ' + filter + ' Option: ' + option + ' Value: ' + value);
+                let emp = {};
+                if(option === 'less_than'){
+                    emp = await Employee.find({ age: { $lt: value } }, {_id:0, __v:0});
+                }else if(option === 'greater_than'){
+                    emp = await Employee.find({ age: { $gt: value } }, {_id:0, __v:0});
+                }
+                if(!emp.length > 0){
+                    return res.status(400).send({
+                        Message: 'No data found'
+                    });
+                }
                 res.send(emp);
             } catch (e) {
                 res.status(500).send(e);
@@ -117,12 +143,24 @@ const getByFilters = async (req, res) => {
             try {
                 const option = req.body.option; 
                 const value = req.body.value;
-                console.log('Filter: ' + filter + ' Option: ' + option + ' Value: ' + value);
-                if(option === 'less_than'){
-                    const emp = await Employee.find({ salary: { $lt: value } });
-                    return res.send(emp);
+                if(!option || !value){
+                    return res.status(400).send({
+                        Code: '400',
+                        Error: 'Please enter the filter values and options'
+                    });
                 }
-                const emp = await Employee.find({ salary: { $gt: value } });
+                console.log('Filter: ' + filter + ' Option: ' + option + ' Value: ' + value);
+                let emp = {};
+                if(option === 'less_than'){
+                    emp = await Employee.find({ salary: { $lt: value } }, {_id:0, __v:0});
+                }else if(option === 'greater_than'){
+                    emp = await Employee.find({ salary: { $gt: value } }, {_id:0, __v:0});
+                }
+                if(!emp.length > 0){
+                    return res.status(400).send({
+                        Message: 'No data found'
+                    });
+                }
                 res.send(emp);
             } catch (e) {
                 res.status(500).send(e);
@@ -133,12 +171,24 @@ const getByFilters = async (req, res) => {
             try {
                 const option = req.body.option; 
                 const value = req.body.value;
-                console.log('Filter: ' + filter + ' Option: ' + option + ' Value: ' + value);
-                if(option === 'before'){
-                    const emp = await Employee.find({ doj: { $lt: value } });
-                    return res.send(emp);
+                if(!option || !value){
+                    return res.status(400).send({
+                        Code: '400',
+                        Error: 'Please enter the filter values and options'
+                    });
                 }
-                const emp = await Employee.find({ doj: { $gt: value } });
+                console.log('Filter: ' + filter + ' Option: ' + option + ' Value: ' + value);
+                let emp = {};
+                if(option === 'before'){
+                    emp = await Employee.find({ doj: { $lt: value } }, {_id:0, __v:0});                    
+                }else if(option === 'after'){
+                    emp = await Employee.find({ doj: { $gt: value } }, {_id:0, __v:0});
+                }
+                if(!emp.length > 0){
+                    return res.status(400).send({
+                        Message: 'No data found'
+                    });
+                }
                 res.send(emp);
             } catch (e) {
                 res.status(500).send(e);
@@ -147,7 +197,7 @@ const getByFilters = async (req, res) => {
 
         default:
             res.status(400).send({
-                "Message": "This filter is not available"
+                "Message": "This filter is not available: " +filter
             })
             break;
     }
